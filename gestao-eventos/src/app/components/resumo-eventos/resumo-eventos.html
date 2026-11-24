@@ -1,0 +1,30 @@
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Cadastrado</span>
+      <span class="p-2 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm">📅 Total</span>
+    </div>
+    <p class="text-3xl font-black text-slate-900 mt-3">{{ total() }}</p>
+    <span class="text-xs text-slate-400 mt-1 block">Eventos gerenciados no sistema</span>
+  </div>
+
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Eventos Ativos</span>
+      <span class="p-2 rounded-xl bg-emerald-50 text-emerald-600 font-bold text-sm">✨ Publicados</span>
+    </div>
+    <p class="text-3xl font-black text-emerald-600 mt-3">{{ ativos() }}</p>
+    <span class="text-xs text-slate-400 mt-1 block">Abertos para inscrições e público</span>
+  </div>
+
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Pausados / Inativos</span>
+      <span class="p-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">⏸️ Rascunhos</span>
+    </div>
+    <p class="text-3xl font-black text-slate-700 mt-3">{{ inativos() }}</p>
+    <span class="text-xs text-slate-400 mt-1 block">Eventos fora de circulação</span>
+  </div>
+
+</div>

@@ -1,0 +1,53 @@
+<p-dialog [header]="editando() ? 'Alterar Evento' : 'Novo Evento'" [(visible)]="visivel" [modal]="true"
+  [draggable]="false" [resizable]="false" [style]="{ width: '480px' }" styleClass="rounded-2xl shadow-2xl">
+
+  <form [formGroup]="formEvento" (ngSubmit)="enviar()" class="flex flex-col gap-4 pt-2">
+
+    <div class="flex flex-col gap-1">
+      <label for="titulo" class="text-xs font-bold uppercase tracking-wider text-slate-700">Título</label>
+      <input pInputText id="titulo" formControlName="titulo" placeholder="Nome do evento" class="w-full" />
+      @if (formEvento.controls.titulo.invalid && formEvento.controls.titulo.touched) {
+      <small class="text-red-500 text-xs">Informe pelo menos 3 caracteres.</small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="local" class="text-xs font-bold uppercase tracking-wider text-slate-700">Local</label>
+      <input pInputText id="local" formControlName="local" placeholder="Ex: Arena Central" class="w-full" />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="data" class="text-xs font-bold uppercase tracking-wider text-slate-700">Data</label>
+      <p-datePicker id="data" formControlName="data" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full" />
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-1">
+        <label for="preco" class="text-xs font-bold uppercase tracking-wider text-slate-700">Preço (R$)</label>
+        <p-inputNumber id="preco" formControlName="preco" mode="currency" currency="BRL" locale="pt-BR"
+          class="w-full" />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="capacidade" class="text-xs font-bold uppercase tracking-wider text-slate-700">Capacidade</label>
+        <p-inputNumber id="capacidade" formControlName="capacidade" [min]="1" class="w-full" />
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 mt-1">
+      <div>
+        <span class="text-sm font-bold text-slate-800 block">Status Ativo</span>
+        <span class="text-xs text-slate-400">O evento estará disponível para o público</span>
+      </div>
+      <p-toggleswitch id="ativo" formControlName="ativo"
+        style="--p-toggleswitch-checked-background: #09090b; --p-toggleswitch-checked-hover-background: #000000;" />
+    </div>
+
+    <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 mt-2">
+      <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="visivel.set(false)" />
+      <p-button styleClass="!text-white !bg-zinc-950 !border-zinc-950"
+        [label]="editando() ? 'Salvar Alterações' : 'Criar Evento'" type="submit" [disabled]="formEvento.invalid" />
+    </div>
+
+  </form>
+</p-dialog>

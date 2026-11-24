@@ -1,0 +1,95 @@
+<div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+
+  <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h3 class="font-bold text-slate-900 text-lg">Todos os Eventos</h3>
+      <p class="text-xs text-slate-400">Lista completa com operações de edição e detalhamento</p>
+    </div>
+  </div>
+
+  @if (erro(); as mensagem) {
+  <div class="mx-5 mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700 flex items-center justify-between">
+    <span>{{ mensagem }}</span>
+    <p-button label="Tentar novamente" size="small" [text]="true" severity="danger" (onClick)="recarregar.emit()" />
+  </div>
+  }
+
+  <p-table [value]="eventos()" [loading]="carregando()" size="small" class="p-3.5" [tableStyle]="{ 'min-width': '52rem' }">
+    <ng-template pTemplate="header">
+      <tr class="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-50/80 border-b border-slate-100">
+        <th class="py-3.5 px-5 text-left">Evento</th>
+        <th class="py-3.5 px-4 text-left">Localização</th>
+        <th class="py-3.5 px-4 text-left">Data</th>
+        <th class="py-3.5 px-4 text-left">Ingresso</th>
+        <th class="py-3.5 px-4 text-left">Lotação</th>
+        <th class="py-3.5 px-4 text-center">Status</th>
+        <th class="py-3.5 px-5 text-right">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-evento>
+      <tr class="border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
+
+        <td class="py-4 px-5">
+          <span class="font-bold text-slate-900 block text-sm">{{ evento.titulo }}</span>
+          <span class="text-xs text-slate-400">ID #{{ evento.id }}</span>
+        </td>
+
+        <td class="py-4 px-4 text-sm text-slate-600">
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400 text-xs">📍</span>
+            <span>{{ evento.local }}</span>
+          </div>
+        </td>
+
+        <td class="py-4 px-4 text-sm text-slate-600">
+          <div class="flex items-center gap-1.5 whitespace-nowrap">
+            <span class="text-slate-400 text-xs">📅</span>
+            <span>{{ evento.data | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </td>
+
+        <td class="py-4 px-4 text-sm whitespace-nowrap font-semibold">
+          @if (evento.preco === 0) {
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">
+            Gratuito
+          </span>
+          } @else {
+          <span class="text-slate-800">{{ evento.preco | currency:'BRL' }}</span>
+          }
+        </td>
+
+        <td class="py-4 px-4 text-sm text-slate-600 whitespace-nowrap">
+          <span class="font-medium text-slate-800">{{ evento.capacidade }}</span>
+          <span class="text-xs text-slate-400"> vagas</span>
+        </td>
+
+        <td class="py-4 px-4 text-center whitespace-nowrap">
+          <p-tag [value]="evento.ativo ? 'Ativo' : 'Inativo'" [severity]="evento.ativo ? 'success' : 'secondary'"
+            [rounded]="true" />
+        </td>
+
+        <td class="py-4 px-5 text-right whitespace-nowrap">
+          <div class="inline-flex items-center gap-1">
+            <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" pTooltip="Ver Detalhes"
+              tooltipPosition="top" (onClick)="detalhar.emit(evento)" />
+            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn" pTooltip="Editar"
+              tooltipPosition="top" (onClick)="editar.emit(evento)" />
+            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" pTooltip="Excluir"
+              tooltipPosition="top" (onClick)="remover.emit(evento)" />
+          </div>
+        </td>
+
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="py-12 text-center text-slate-400 text-sm">
+          Nenhum evento registrado ainda. Clique em <b>Novo Evento</b> para começar.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
