@@ -1,6 +1,5 @@
-import { Component, effect, signal, inject, untracked } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { RouterOutlet } from '@angular/router';
 import { TableModule } from '@openng/optimus-ui/table';
 import { TagModule } from '@openng/optimus-ui/tag';
 import { ButtonModule } from '@openng/optimus-ui/button';
@@ -11,20 +10,17 @@ import { DatePickerModule } from '@openng/optimus-ui/datepicker';
 import { CardModule } from '@openng/optimus-ui/card';
 import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
 import { ToolbarModule } from '@openng/optimus-ui/toolbar';
-import { EventoService } from './services/evento.service';
-import { AuthService } from './services/auth.service';
-import { Login } from './pages/login/login';
-import { Cadastro } from './pages/cadastro/cadastro';
-import { Evento, EventoDados } from './models/evento.model';
+import { EventoService } from '../../services/evento.service';
+import { AuthService } from '../../services/auth.service';
+import { Evento, EventoDados } from '../../models/evento.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
-  imports: [CurrencyPipe, DatePipe, RouterOutlet, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, DatePickerModule, CardModule, ToggleSwitchModule, ToolbarModule, ReactiveFormsModule, Login, Cadastro ],
-  selector: 'app-root',
-  styleUrl: './app.css',
-  templateUrl: './app.html'
+  imports: [CurrencyPipe, DatePipe, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, DatePickerModule, CardModule, ToggleSwitchModule, ToolbarModule, ReactiveFormsModule ],
+  selector: 'app-eventos',
+  templateUrl: './eventos.html'
 })
-export class App {
+export class Eventos implements OnInit, OnDestroy {
   protected eventService = inject(EventoService);
   protected auth = inject(AuthService);
   private fb = inject(FormBuilder);
@@ -36,8 +32,6 @@ export class App {
   filterText = signal<string>('');
   idEventoEdit = signal<number | null>(null);
 
-  telaPublica = signal<'login' | 'cadastro'>('login');
-
   formEvento : FormGroup = this.fb.group({
     titulo: ['', [Validators.required, Validators.minLength(3)]],
     local: ['', [Validators.required, Validators.minLength(3)]],
@@ -47,14 +41,16 @@ export class App {
     ativo: [true]
   })
 
-  private readonly carregarAoLogar = effect(() => {
-    const logado = this.auth.logado();
-    untracked(() => (logado ? this.eventService.carregar() : this.eventService.limpar()));
-  });
+  ngOnInit() {
+    this.eventService.carregar();
+  }
+
+  ngOnDestroy() {
+    this.eventService.limpar();
+  }
 
   sair() {
     this.auth.logout();
-    this.telaPublica.set('login');
   }
 
   formOpen() {
@@ -116,6 +112,4 @@ export class App {
       error: () => alert('Não foi possível remover o evento.'),
     });
   }
-
-
 }

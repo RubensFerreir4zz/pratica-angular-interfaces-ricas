@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable, map, tap } from 'rxjs';
 import { Credenciais, NovaConta, Sessao, Usuario } from '../models/usuario.model';
 import { environment } from '../../environments/environment';
@@ -11,6 +12,7 @@ const CHAVE_STORAGE = 'gestao-eventos.sessao';
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
 
   private readonly _sessao = signal<Sessao | null>(lerSessaoSalva());
 
@@ -38,6 +40,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(CHAVE_STORAGE);
     this._sessao.set(null);
+    this.router.navigate(['/login']);
   }
 }
 

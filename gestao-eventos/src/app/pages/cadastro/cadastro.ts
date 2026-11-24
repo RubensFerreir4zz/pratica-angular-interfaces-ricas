@@ -1,4 +1,5 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   FormField,
@@ -21,11 +22,12 @@ interface CadastroForm extends NovaConta {
 
 @Component({
   selector: 'app-cadastro',
-  imports: [FormField, ButtonModule, InputTextModule],
+  imports: [FormField, RouterLink, ButtonModule, InputTextModule],
   templateUrl: './cadastro.html',
 })
 export class Cadastro {
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   protected readonly dados = signal<CadastroForm>({
     nome: '',
@@ -51,8 +53,6 @@ export class Cadastro {
 
   protected readonly erroCadastro = signal<string | null>(null);
 
-  readonly irParaLogin = output<void>();
-
   protected async cadastrar(evento: Event) {
     evento.preventDefault();
     this.erroCadastro.set(null);
@@ -61,6 +61,7 @@ export class Cadastro {
       const { nome, email, senha } = this.dados();
       try {
         await firstValueFrom(this.auth.registrar({ nome, email, senha }));
+        await this.router.navigate(['/eventos']);
       } catch (erro) {
         const status = (erro as HttpErrorResponse).status;
         this.erroCadastro.set(
