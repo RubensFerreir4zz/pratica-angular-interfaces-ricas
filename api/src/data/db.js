@@ -13,7 +13,14 @@ function carregar() {
   return JSON.parse(readFileSync(arquivo, 'utf-8'));
 }
 
-const db = carregar();
+function atribuirEventosSemDono(dados) {
+  const semDono = dados.eventos.filter((e) => e.usuarioId === undefined);
+  semDono.forEach((e) => (e.usuarioId = 1));
+  if (semDono.length) writeFileSync(arquivo, JSON.stringify(dados, null, 2));
+  return dados;
+}
+
+const db = atribuirEventosSemDono(carregar());
 
 export function salvar() {
   writeFileSync(arquivo, JSON.stringify(db, null, 2));

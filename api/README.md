@@ -22,13 +22,15 @@ Os dados ficam em `src/data/db.json`, criado automaticamente na primeira execuç
 | POST | `/api/auth/registro` | Não | Recebe `{ nome, email, senha }`, cria a conta e devolve `{ token, usuario }` (`409` se o email já existir) |
 | POST | `/api/auth/login` | Não | Recebe `{ email, senha }` e devolve `{ token, usuario }` |
 | GET | `/api/auth/me` | Sim | Dados do usuário logado |
-| GET | `/api/eventos` | Sim | Lista os eventos |
+| GET | `/api/eventos` | Sim | Lista os eventos do usuário logado |
 | GET | `/api/eventos/:id` | Sim | Detalha um evento |
 | POST | `/api/eventos` | Sim | Inclui um evento |
 | PUT | `/api/eventos/:id` | Sim | Altera um evento |
 | DELETE | `/api/eventos/:id` | Sim | Remove um evento |
 
 Rotas protegidas exigem o header `Authorization: Bearer <token>`; sem ele a API responde `401`.
+
+Cada usuário só acessa os próprios eventos: tentar ler, alterar ou remover o evento de outra conta responde `404`.
 
 ### Corpo de um evento
 

@@ -4,52 +4,59 @@ import { validarEvento } from '../utils/validar-evento.js';
 
 const router = Router();
 
-function buscar(id) {
-  return db.eventos.find((e) => e.id === Number(id));
+function doUsuario(req) {
+  return db.eventos.filter((e) => e.usuarioId === req.usuario.id);
 }
 
-// GET /api/eventos -> lista todos
+function buscar(req) {
+  return doUsuario(req).find((e) => e.id === Number(req.params.id));
+}
+
+function semDono({ usuarioId, ...evento }) {
+  return evento;
+}
+
+function naoEncontrado(res) {
+  return res.status(404).json({ mensagem: 'Evento não encontrado.' });
+}
+
 router.get('/', (req, res) => {
-  res.json(db.eventos);
+  res.json(doUsuario(req).map(semDono));
 });
 
-// GET /api/eventos/:id -> detalha um
 router.get('/:id', (req, res) => {
-  const evento = buscar(req.params.id);
-  if (!evento) return res.status(404).json({ mensagem: 'Evento não encontrado.' });
-  res.json(evento);
+  const evento = buscar(req);
+  if (!evento) return naoEncontrado(res);
+  res.json(semDono(evento));
 });
 
-// POST /api/eventos -> inclui
 router.post('/', (req, res) => {
   const { erros, evento } = validarEvento(req.body);
   if (erros.length) return res.status(400).json({ mensagem: 'Dados inválidos.', erros });
 
-  const novo = { id: proximoId(db.eventos), ...evento };
+  const novo = { id: proximoId(db.eventos), ...evento, usuarioId: req.usuario.id };
   db.eventos.push(novo);
   salvar();
-  res.status(201).json(novo);
+  res.status(201).json(semDono(novo));
 });
 
-// PUT /api/eventos/:id -> altera
 router.put('/:id', (req, res) => {
-  const existente = buscar(req.params.id);
-  if (!existente) return res.status(404).json({ mensagem: 'Evento não encontrado.' });
+  const existente = buscar(req);
+  if (!existente) return naoEncontrado(res);
 
   const { erros, evento } = validarEvento(req.body);
   if (erros.length) return res.status(400).json({ mensagem: 'Dados inválidos.', erros });
 
   Object.assign(existente, evento);
   salvar();
-  res.json(existente);
+  res.json(semDono(existente));
 });
 
-// DELETE /api/eventos/:id -> remove
 router.delete('/:id', (req, res) => {
-  const indice = db.eventos.findIndex((e) => e.id === Number(req.params.id));
-  if (indice === -1) return res.status(404).json({ mensagem: 'Evento não encontrado.' });
+  const existente = buscar(req);
+  if (!existente) return naoEncontrado(res);
 
-  db.eventos.splice(indice, 1);
+  db.eventos.splice(db.eventos.indexOf(existente), 1);
   salvar();
   res.status(204).end();
 });

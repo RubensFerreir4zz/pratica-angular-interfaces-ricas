@@ -48,9 +48,8 @@ export class App {
   })
 
   private readonly carregarAoLogar = effect(() => {
-    if (this.auth.logado()) {
-      untracked(() => this.eventService.carregar());
-    }
+    const logado = this.auth.logado();
+    untracked(() => (logado ? this.eventService.carregar() : this.eventService.limpar()));
   });
 
   sair() {

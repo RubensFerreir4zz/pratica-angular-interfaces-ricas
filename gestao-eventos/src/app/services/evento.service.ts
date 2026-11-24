@@ -41,6 +41,11 @@ export class EventoService {
       });
   }
 
+  limpar(): void {
+    this._eventos.set([]);
+    this._erro.set(null);
+  }
+
   buscarPorId(id: number): Observable<Evento> {
     return this.http.get<EventoApi>(`${this.url}/${id}`).pipe(map(daApi));
   }
