@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { TableModule } from '@openng/optimus-ui/table';
@@ -12,7 +12,7 @@ import { CardModule } from '@openng/optimus-ui/card';
 import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
 import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { EventoService } from './services/evento.service';
-import { Evento } from './models/evento.model';
+import { Evento, EventoDados } from './models/evento.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
@@ -21,7 +21,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
   styleUrl: './app.css',
   templateUrl: './app.html'
 })
-export class App {
+export class App implements OnInit {
   protected eventService = inject(EventoService);
   private fb = inject(FormBuilder);
 
@@ -40,6 +40,11 @@ export class App {
     capacidade: [10, [Validators.required, Validators.min(1)]],
     ativo: [true]
   })
+
+  // Ao abrir a tela, busca os eventos na API
+  ngOnInit() {
+    this.eventService.carregar();
+  }
 
   formOpen() {
     this.editMode.set(false);
@@ -70,26 +75,36 @@ export class App {
   }
 
   formEventSave(){
-    if (this.formEvento.valid){
-      const dados = this.formEvento.value;
-      if (this.editMode() && this.idEventoEdit() !== null){
-        this.eventService.updateEvent(this.idEventoEdit()!, dados);
-      }else{
-        this.eventService.addEvent(dados.titulo, dados.local, dados.data, dados.preco, dados.capacidade, dados.ativo);
-      }
-      this.dialogFormVisible.set(false)
-    }
+    if (this.formEvento.invalid) return;
+
+    const dados: EventoDados = this.formEvento.value;
+    const id = this.idEventoEdit();
+
+    // Escolhe a requisição (PUT ou POST); o service atualiza a lista quando a API responde
+    const requisicao = this.editMode() && id !== null
+      ? this.eventService.atualizar(id, dados)
+      : this.eventService.adicionar(dados);
+
+    requisicao.subscribe({
+      next: () => this.dialogFormVisible.set(false),
+      error: () => alert('Não foi possível salvar o evento.'),
+    });
   }
+
   formEventDetailsOpen(id: number) {
-    const evento = this.eventService.getById(id);
-    if (evento) {
-      this.eventSelected.set(evento);
-      this.dialogDetailsVisible.set(true);
-    }
+    this.eventService.buscarPorId(id).subscribe({
+      next: (evento) => {
+        this.eventSelected.set(evento);
+        this.dialogDetailsVisible.set(true);
+      },
+      error: () => alert('Não foi possível carregar o evento.'),
+    });
   }
 
   formEventDelete(id: number) {
-    this.eventService.deleteEvent(id);
+    this.eventService.remover(id).subscribe({
+      error: () => alert('Não foi possível remover o evento.'),
+    });
   }
 
 

@@ -79,7 +79,15 @@
       </div>
 
       <!-- Tabela com pTemplate -->
-      <p-table [value]="eventService.eventos()" size="small" class="p-3.5" [tableStyle]="{ 'min-width': '52rem' }">
+      @if (eventService.erro(); as erro) {
+      <div class="mx-5 mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700 flex items-center justify-between">
+        <span>{{ erro }}</span>
+        <p-button label="Tentar novamente" size="small" [text]="true" severity="danger"
+          (onClick)="eventService.carregar()" />
+      </div>
+      }
+
+      <p-table [value]="eventService.eventos()" [loading]="eventService.carregando()" size="small" class="p-3.5" [tableStyle]="{ 'min-width': '52rem' }">
         <ng-template pTemplate="header">
           <tr
             class="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-50/80 border-b border-slate-100">
