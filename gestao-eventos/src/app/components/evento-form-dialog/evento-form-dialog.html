@@ -1,36 +1,47 @@
 <p-dialog [header]="editando() ? 'Alterar Evento' : 'Novo Evento'" [(visible)]="visivel" [modal]="true"
   [draggable]="false" [resizable]="false" [style]="{ width: '480px' }" styleClass="rounded-2xl shadow-2xl">
 
-  <form [formGroup]="formEvento" (ngSubmit)="enviar()" class="flex flex-col gap-4 pt-2">
+  <form (submit)="enviar($event)" novalidate class="flex flex-col gap-4 pt-2">
 
     <div class="flex flex-col gap-1">
       <label for="titulo" class="text-xs font-bold uppercase tracking-wider text-slate-700">Título</label>
-      <input pInputText id="titulo" formControlName="titulo" placeholder="Nome do evento" class="w-full" />
-      @if (formEvento.controls.titulo.invalid && formEvento.controls.titulo.touched) {
-      <small class="text-red-500 text-xs">Informe pelo menos 3 caracteres.</small>
+      <input pInputText id="titulo" [formField]="eventoForm.titulo" placeholder="Nome do evento" class="w-full" />
+      @if (eventoForm.titulo().touched() && eventoForm.titulo().invalid()) {
+      <small class="text-red-500 text-xs">{{ eventoForm.titulo().errors()[0].message }}</small>
       }
     </div>
 
     <div class="flex flex-col gap-1">
       <label for="local" class="text-xs font-bold uppercase tracking-wider text-slate-700">Local</label>
-      <input pInputText id="local" formControlName="local" placeholder="Ex: Arena Central" class="w-full" />
+      <input pInputText id="local" [formField]="eventoForm.local" placeholder="Ex: Arena Central" class="w-full" />
+      @if (eventoForm.local().touched() && eventoForm.local().invalid()) {
+      <small class="text-red-500 text-xs">{{ eventoForm.local().errors()[0].message }}</small>
+      }
     </div>
 
     <div class="flex flex-col gap-1">
       <label for="data" class="text-xs font-bold uppercase tracking-wider text-slate-700">Data</label>
-      <p-datePicker id="data" formControlName="data" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full" />
+      <app-campo-data inputId="data" [formField]="eventoForm.data" />
+      @if (eventoForm.data().touched() && eventoForm.data().invalid()) {
+      <small class="text-red-500 text-xs">{{ eventoForm.data().errors()[0].message }}</small>
+      }
     </div>
 
     <div class="grid grid-cols-2 gap-3">
       <div class="flex flex-col gap-1">
         <label for="preco" class="text-xs font-bold uppercase tracking-wider text-slate-700">Preço (R$)</label>
-        <p-inputNumber id="preco" formControlName="preco" mode="currency" currency="BRL" locale="pt-BR"
-          class="w-full" />
+        <app-campo-numero inputId="preco" moeda="BRL" [formField]="eventoForm.preco" />
+        @if (eventoForm.preco().touched() && eventoForm.preco().invalid()) {
+        <small class="text-red-500 text-xs">{{ eventoForm.preco().errors()[0].message }}</small>
+        }
       </div>
 
       <div class="flex flex-col gap-1">
         <label for="capacidade" class="text-xs font-bold uppercase tracking-wider text-slate-700">Capacidade</label>
-        <p-inputNumber id="capacidade" formControlName="capacidade" [min]="1" class="w-full" />
+        <app-campo-numero inputId="capacidade" [formField]="eventoForm.capacidade" />
+        @if (eventoForm.capacidade().touched() && eventoForm.capacidade().invalid()) {
+        <small class="text-red-500 text-xs">{{ eventoForm.capacidade().errors()[0].message }}</small>
+        }
       </div>
     </div>
 
@@ -39,14 +50,14 @@
         <span class="text-sm font-bold text-slate-800 block">Status Ativo</span>
         <span class="text-xs text-slate-400">O evento estará disponível para o público</span>
       </div>
-      <p-toggleswitch id="ativo" formControlName="ativo"
+      <p-toggleswitch inputId="ativo" [formField]="eventoForm.ativo"
         style="--p-toggleswitch-checked-background: #09090b; --p-toggleswitch-checked-hover-background: #000000;" />
     </div>
 
     <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 mt-2">
       <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="visivel.set(false)" />
-      <p-button styleClass="!text-white !bg-zinc-950 !border-zinc-950"
-        [label]="editando() ? 'Salvar Alterações' : 'Criar Evento'" type="submit" [disabled]="formEvento.invalid" />
+      <p-button styleClass="!text-white !bg-zinc-950 !border-zinc-950" type="submit"
+        [label]="editando() ? 'Salvar Alterações' : 'Criar Evento'" [loading]="eventoForm().submitting()" />
     </div>
 
   </form>

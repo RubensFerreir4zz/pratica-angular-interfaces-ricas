@@ -1,29 +1,45 @@
-import { Component, computed, effect, inject, input, model, output, untracked } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, effect, input, model, output, signal, untracked } from '@angular/core';
+import { FormField, form, min, minLength, required, submit } from '@angular/forms/signals';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { DialogModule } from '@openng/optimus-ui/dialog';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
-import { InputNumberModule } from '@openng/optimus-ui/inputnumber';
-import { DatePickerModule } from '@openng/optimus-ui/datepicker';
 import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
 import { Evento, EventoDados } from '../../models/evento.model';
+import { CampoData } from '../campo-data/campo-data';
+import { CampoNumero } from '../campo-numero/campo-numero';
+
+interface EventoForm {
+  titulo: string;
+  local: string;
+  data: Date | null;
+  preco: number | null;
+  capacidade: number | null;
+  ativo: boolean;
+}
+
+const EVENTO_VAZIO: EventoForm = {
+  titulo: '',
+  local: '',
+  data: null,
+  preco: 0,
+  capacidade: 10,
+  ativo: true,
+};
 
 @Component({
   selector: 'app-evento-form-dialog',
   imports: [
-    ReactiveFormsModule,
+    FormField,
     ButtonModule,
     DialogModule,
     InputTextModule,
-    InputNumberModule,
-    DatePickerModule,
     ToggleSwitchModule,
+    CampoData,
+    CampoNumero,
   ],
   templateUrl: './evento-form-dialog.html',
 })
 export class EventoFormDialog {
-  private readonly fb = inject(FormBuilder);
-
   readonly visivel = model(false);
   readonly evento = input<Evento | null>(null);
 
@@ -31,32 +47,36 @@ export class EventoFormDialog {
 
   protected readonly editando = computed(() => this.evento() !== null);
 
-  protected readonly formEvento = this.fb.group({
-    titulo: ['', [Validators.required, Validators.minLength(3)]],
-    local: ['', [Validators.required, Validators.minLength(3)]],
-    data: [null as Date | null, Validators.required],
-    preco: [0, [Validators.required, Validators.min(0)]],
-    capacidade: [10, [Validators.required, Validators.min(1)]],
-    ativo: [true],
+  protected readonly modelo = signal<EventoForm>(EVENTO_VAZIO);
+
+  protected readonly eventoForm = form(this.modelo, (campo) => {
+    required(campo.titulo, { message: 'Informe o título.' });
+    minLength(campo.titulo, 3, { message: 'O título precisa ter pelo menos 3 caracteres.' });
+    required(campo.local, { message: 'Informe o local.' });
+    minLength(campo.local, 3, { message: 'O local precisa ter pelo menos 3 caracteres.' });
+    required(campo.data, { message: 'Informe a data.' });
+    required(campo.preco, { message: 'Informe o preço (0 para gratuito).' });
+    min(campo.preco, 0, { message: 'O preço não pode ser negativo.' });
+    required(campo.capacidade, { message: 'Informe a capacidade.' });
+    min(campo.capacidade, 1, { message: 'A capacidade mínima é 1 pessoa.' });
   });
 
   private readonly preencherAoAbrir = effect(() => {
     if (!this.visivel()) return;
     const evento = this.evento();
-    untracked(() =>
-      this.formEvento.reset(
-        evento
-          ? { ...evento }
-          : { titulo: '', local: '', data: null, preco: 0, capacidade: 10, ativo: true },
-      ),
-    );
+    untracked(() => this.eventoForm().reset(evento ? paraFormulario(evento) : { ...EVENTO_VAZIO }));
   });
 
-  protected enviar() {
-    if (this.formEvento.invalid) {
-      this.formEvento.markAllAsTouched();
-      return;
-    }
-    this.salvar.emit(this.formEvento.getRawValue() as EventoDados);
+  protected async enviar(evento: Event) {
+    evento.preventDefault();
+
+    await submit(this.eventoForm, async () => {
+      this.salvar.emit(this.modelo() as EventoDados);
+      return undefined;
+    });
   }
+}
+
+function paraFormulario({ titulo, local, data, preco, capacidade, ativo }: Evento): EventoForm {
+  return { titulo, local, data, preco, capacidade, ativo };
 }
