@@ -1,3 +1,7 @@
+<!-- Sem sessão: mostra o login. Com sessão: mostra o painel. (Na Parte 3 isso vira rota + guard) -->
+@if (!auth.logado()) {
+<app-login />
+} @else {
 <div class="min-h-screen bg-slate-100/70 text-slate-800 antialiased font-sans pb-16">
 
   <!-- TOPBAR ELEGANTE -->
@@ -12,6 +16,14 @@
       <div class="flex items-center gap-3">
         <p-button label="Novo Evento" icon="pi pi-plus" severity="success" (onClick)="formOpen()"
           styleClass="!bg-zinc-950 !border-zinc-950 font-semibold shadow-sm rounded-lg text-sm px-4 py-2" />
+
+        <!-- Usuário logado + sair -->
+        <div class="hidden sm:flex flex-col items-end leading-tight pl-3 ml-1 border-l border-slate-200">
+          <span class="text-sm font-semibold text-slate-800">{{ auth.usuario()?.nome }}</span>
+          <span class="text-xs text-slate-400">{{ auth.usuario()?.email }}</span>
+        </div>
+        <p-button icon="pi pi-sign-out" [rounded]="true" [text]="true" severity="secondary"
+          ariaLabel="Sair" (onClick)="sair()" />
       </div>
 
     </div>
@@ -286,3 +298,4 @@
     }
   </p-dialog>
 </div>
+}

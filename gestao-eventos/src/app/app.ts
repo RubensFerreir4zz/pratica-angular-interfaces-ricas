@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, effect, signal, inject, untracked } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { TableModule } from '@openng/optimus-ui/table';
@@ -12,17 +12,20 @@ import { CardModule } from '@openng/optimus-ui/card';
 import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
 import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { EventoService } from './services/evento.service';
+import { AuthService } from './services/auth.service';
+import { Login } from './pages/login/login';
 import { Evento, EventoDados } from './models/evento.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
-  imports: [CurrencyPipe, DatePipe, RouterOutlet, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, DatePickerModule, CardModule, ToggleSwitchModule, ToolbarModule, ReactiveFormsModule ],
+  imports: [CurrencyPipe, DatePipe, RouterOutlet, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, DatePickerModule, CardModule, ToggleSwitchModule, ToolbarModule, ReactiveFormsModule, Login ],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html'
 })
-export class App implements OnInit {
+export class App {
   protected eventService = inject(EventoService);
+  protected auth = inject(AuthService);
   private fb = inject(FormBuilder);
 
   dialogFormVisible = signal<boolean> (false);
@@ -41,9 +44,14 @@ export class App implements OnInit {
     ativo: [true]
   })
 
-  // Ao abrir a tela, busca os eventos na API
-  ngOnInit() {
-    this.eventService.carregar();
+  private readonly carregarAoLogar = effect(() => {
+    if (this.auth.logado()) {
+      untracked(() => this.eventService.carregar());
+    }
+  });
+
+  sair() {
+    this.auth.logout();
   }
 
   formOpen() {
