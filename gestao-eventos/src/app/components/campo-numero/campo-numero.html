@@ -1,0 +1,3 @@
+<p-inputNumber [inputId]="inputId()" [ngModel]="value()" (ngModelChange)="value.set($event)"
+  (onBlur)="touch.emit()" [invalid]="invalid() || undefined" [disabled]="disabled()"
+  [mode]="moeda() ? 'currency' : 'decimal'" [currency]="moeda()" locale="pt-BR" [fluid]="true" />

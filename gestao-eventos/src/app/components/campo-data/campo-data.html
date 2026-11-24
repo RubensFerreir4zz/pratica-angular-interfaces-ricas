@@ -1,0 +1,3 @@
+<p-datePicker [inputId]="inputId()" [ngModel]="value()" (ngModelChange)="value.set($event)"
+  (onBlur)="touch.emit()" (onClose)="touch.emit()" [invalid]="invalid() || undefined" [disabled]="disabled()"
+  dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" [fluid]="true" />
