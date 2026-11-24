@@ -19,6 +19,7 @@ Os dados ficam em `src/data/db.json`, criado automaticamente na primeira execuç
 
 | Método | Rota | Protegida | Descrição |
 |---|---|---|---|
+| POST | `/api/auth/registro` | Não | Recebe `{ nome, email, senha }`, cria a conta e devolve `{ token, usuario }` (`409` se o email já existir) |
 | POST | `/api/auth/login` | Não | Recebe `{ email, senha }` e devolve `{ token, usuario }` |
 | GET | `/api/auth/me` | Sim | Dados do usuário logado |
 | GET | `/api/eventos` | Sim | Lista os eventos |
