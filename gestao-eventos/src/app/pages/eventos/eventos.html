@@ -27,4 +27,7 @@
   <app-evento-form-dialog [(visivel)]="formVisivel" [evento]="eventoEmEdicao()" (salvar)="salvar($event)" />
 
   <app-evento-detalhes-dialog [(visivel)]="detalhesVisivel" [evento]="eventoSelecionado()" />
+
+  <p-toast position="top-right" />
+  <p-confirmdialog [style]="{ width: '420px' }" styleClass="rounded-2xl shadow-2xl" />
 </div>
