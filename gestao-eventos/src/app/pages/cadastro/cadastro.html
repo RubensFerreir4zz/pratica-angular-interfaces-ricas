@@ -1,0 +1,69 @@
+<div class="min-h-screen bg-slate-100/70 flex items-center justify-center px-4 py-10">
+  <div class="w-full max-w-sm">
+
+    <div class="flex justify-center mb-6">
+      <div class="p-2 bg-slate-900 rounded-xl shadow-xs">
+        <img src="Logo Cadastry.svg" alt="Cadastry Logo" class="h-8 w-auto invert brightness-200" />
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-8">
+      <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Criar conta</h1>
+      <p class="text-sm text-slate-500 mb-6">Cadastre-se para gerenciar seus eventos.</p>
+
+      @if (erroCadastro(); as erro) {
+      <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+        {{ erro }}
+      </div>
+      }
+
+      <form (submit)="cadastrar($event)" novalidate class="flex flex-col gap-4">
+
+        <div class="flex flex-col gap-1">
+          <label for="nome" class="text-xs font-bold uppercase tracking-wider text-slate-700">Nome</label>
+          <input pInputText id="nome" autocomplete="name" placeholder="Seu nome"
+            [formField]="cadastroForm.nome" class="w-full" />
+          @if (cadastroForm.nome().touched() && cadastroForm.nome().invalid()) {
+          <small class="text-red-500 text-xs">{{ cadastroForm.nome().errors()[0].message }}</small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="email" class="text-xs font-bold uppercase tracking-wider text-slate-700">Email</label>
+          <input pInputText id="email" type="email" autocomplete="email" placeholder="voce@exemplo.com"
+            [formField]="cadastroForm.email" class="w-full" />
+          @if (cadastroForm.email().touched() && cadastroForm.email().invalid()) {
+          <small class="text-red-500 text-xs">{{ cadastroForm.email().errors()[0].message }}</small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="senha" class="text-xs font-bold uppercase tracking-wider text-slate-700">Senha</label>
+          <input pInputText id="senha" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres"
+            [formField]="cadastroForm.senha" class="w-full" />
+          @if (cadastroForm.senha().touched() && cadastroForm.senha().invalid()) {
+          <small class="text-red-500 text-xs">{{ cadastroForm.senha().errors()[0].message }}</small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="confirmarSenha" class="text-xs font-bold uppercase tracking-wider text-slate-700">Confirmar senha</label>
+          <input pInputText id="confirmarSenha" type="password" autocomplete="new-password" placeholder="Repita a senha"
+            [formField]="cadastroForm.confirmarSenha" class="w-full" />
+          @if (cadastroForm.confirmarSenha().touched() && cadastroForm.confirmarSenha().invalid()) {
+          <small class="text-red-500 text-xs">{{ cadastroForm.confirmarSenha().errors()[0].message }}</small>
+          }
+        </div>
+
+        <p-button type="submit" label="Criar conta" icon="pi pi-user-plus" [loading]="cadastroForm().submitting()"
+          class="mt-2" styleClass="w-full !bg-zinc-950 !border-zinc-950 font-semibold" />
+      </form>
+
+      <p class="text-sm text-slate-500 text-center mt-6">
+        Já tem conta?
+        <button type="button" (click)="irParaLogin.emit()"
+          class="font-semibold text-slate-900 hover:underline cursor-pointer">Entrar</button>
+      </p>
+    </div>
+  </div>
+</div>

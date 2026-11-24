@@ -43,6 +43,12 @@
         <p-button type="submit" label="Entrar" icon="pi pi-sign-in" [loading]="loginForm().submitting()"
           class="mt-2" styleClass="w-full !bg-zinc-950 !border-zinc-950 font-semibold" />
       </form>
+
+      <p class="text-sm text-slate-500 text-center mt-6">
+        Ainda não tem conta?
+        <button type="button" (click)="irParaCadastro.emit()"
+          class="font-semibold text-slate-900 hover:underline cursor-pointer">Criar conta</button>
+      </p>
     </div>
 
     <p class="text-center text-xs text-slate-400 mt-4">

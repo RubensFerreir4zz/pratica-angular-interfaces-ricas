@@ -14,11 +14,12 @@ import { ToolbarModule } from '@openng/optimus-ui/toolbar';
 import { EventoService } from './services/evento.service';
 import { AuthService } from './services/auth.service';
 import { Login } from './pages/login/login';
+import { Cadastro } from './pages/cadastro/cadastro';
 import { Evento, EventoDados } from './models/evento.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
-  imports: [CurrencyPipe, DatePipe, RouterOutlet, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, DatePickerModule, CardModule, ToggleSwitchModule, ToolbarModule, ReactiveFormsModule, Login ],
+  imports: [CurrencyPipe, DatePipe, RouterOutlet, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, DatePickerModule, CardModule, ToggleSwitchModule, ToolbarModule, ReactiveFormsModule, Login, Cadastro ],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html'
@@ -34,6 +35,8 @@ export class App {
   editMode = signal<boolean>(false);
   filterText = signal<string>('');
   idEventoEdit = signal<number | null>(null);
+
+  telaPublica = signal<'login' | 'cadastro'>('login');
 
   formEvento : FormGroup = this.fb.group({
     titulo: ['', [Validators.required, Validators.minLength(3)]],
@@ -52,6 +55,7 @@ export class App {
 
   sair() {
     this.auth.logout();
+    this.telaPublica.set('login');
   }
 
   formOpen() {
@@ -88,7 +92,6 @@ export class App {
     const dados: EventoDados = this.formEvento.value;
     const id = this.idEventoEdit();
 
-    // Escolhe a requisição (PUT ou POST); o service atualiza a lista quando a API responde
     const requisicao = this.editMode() && id !== null
       ? this.eventService.atualizar(id, dados)
       : this.eventService.adicionar(dados);

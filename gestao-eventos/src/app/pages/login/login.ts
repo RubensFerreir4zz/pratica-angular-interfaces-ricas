@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormField, email, form, minLength, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
@@ -28,6 +28,9 @@ export class Login {
 
   // Erro vindo da API (email/senha errados, API fora do ar...)
   protected readonly erroLogin = signal<string | null>(null);
+
+  // Avisa o componente pai que o usuário quer criar uma conta
+  readonly irParaCadastro = output<void>();
 
   // 3) submit() marca os campos como tocados, valida e só chama a ação se estiver tudo válido
   protected async entrar(evento: Event) {

@@ -1,6 +1,10 @@
 <!-- Sem sessão: mostra o login. Com sessão: mostra o painel. (Na Parte 3 isso vira rota + guard) -->
 @if (!auth.logado()) {
-<app-login />
+  @if (telaPublica() === 'login') {
+  <app-login (irParaCadastro)="telaPublica.set('cadastro')" />
+  } @else {
+  <app-cadastro (irParaLogin)="telaPublica.set('login')" />
+  }
 } @else {
 <div class="min-h-screen bg-slate-100/70 text-slate-800 antialiased font-sans pb-16">
 

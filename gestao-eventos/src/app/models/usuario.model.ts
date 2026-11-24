@@ -13,3 +13,7 @@ export interface Credenciais {
   email: string;
   senha: string;
 }
+
+export interface NovaConta extends Credenciais {
+  nome: string;
+}

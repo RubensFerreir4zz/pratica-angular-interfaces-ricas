@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap } from 'rxjs';
-import { Credenciais, Sessao, Usuario } from '../models/usuario.model';
+import { Credenciais, NovaConta, Sessao, Usuario } from '../models/usuario.model';
 import { environment } from '../../environments/environment';
 
 const CHAVE_STORAGE = 'gestao-eventos.sessao';
@@ -19,13 +19,20 @@ export class AuthService {
   readonly logado = computed(() => this._sessao() !== null);
 
   login(credenciais: Credenciais): Observable<Usuario> {
-    return this.http.post<Sessao>(`${environment.apiUrl}/auth/login`, credenciais).pipe(
-      tap((sessao) => {
-        localStorage.setItem(CHAVE_STORAGE, JSON.stringify(sessao));
-        this._sessao.set(sessao);
-      }),
-      map((sessao) => sessao.usuario),
-    );
+    return this.http
+      .post<Sessao>(`${environment.apiUrl}/auth/login`, credenciais)
+      .pipe(tap((sessao) => this.iniciarSessao(sessao)), map((sessao) => sessao.usuario));
+  }
+
+  registrar(conta: NovaConta): Observable<Usuario> {
+    return this.http
+      .post<Sessao>(`${environment.apiUrl}/auth/registro`, conta)
+      .pipe(tap((sessao) => this.iniciarSessao(sessao)), map((sessao) => sessao.usuario));
+  }
+
+  private iniciarSessao(sessao: Sessao): void {
+    localStorage.setItem(CHAVE_STORAGE, JSON.stringify(sessao));
+    this._sessao.set(sessao);
   }
 
   logout(): void {
