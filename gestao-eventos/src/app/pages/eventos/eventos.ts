@@ -1,45 +1,28 @@
-import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { TableModule } from '@openng/optimus-ui/table';
-import { TagModule } from '@openng/optimus-ui/tag';
-import { ButtonModule } from '@openng/optimus-ui/button';
-import { DialogModule } from '@openng/optimus-ui/dialog';
-import { InputTextModule } from '@openng/optimus-ui/inputtext';
-import { InputNumberModule } from '@openng/optimus-ui/inputnumber';
-import { DatePickerModule } from '@openng/optimus-ui/datepicker';
-import { CardModule } from '@openng/optimus-ui/card';
-import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
-import { ToolbarModule } from '@openng/optimus-ui/toolbar';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { EventoService } from '../../services/evento.service';
 import { AuthService } from '../../services/auth.service';
 import { Evento, EventoDados } from '../../models/evento.model';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { Topbar } from '../../components/topbar/topbar';
+import { ResumoEventos } from '../../components/resumo-eventos/resumo-eventos';
+import { EventoTabela } from '../../components/evento-tabela/evento-tabela';
+import { EventoFormDialog } from '../../components/evento-form-dialog/evento-form-dialog';
+import { EventoDetalhesDialog } from '../../components/evento-detalhes-dialog/evento-detalhes-dialog';
 
 @Component({
-  imports: [CurrencyPipe, DatePipe, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, DatePickerModule, CardModule, ToggleSwitchModule, ToolbarModule, ReactiveFormsModule ],
   selector: 'app-eventos',
-  templateUrl: './eventos.html'
+  imports: [Topbar, ResumoEventos, EventoTabela, EventoFormDialog, EventoDetalhesDialog],
+  templateUrl: './eventos.html',
 })
+  
 export class Eventos implements OnInit, OnDestroy {
-  protected eventService = inject(EventoService);
-  protected auth = inject(AuthService);
-  private fb = inject(FormBuilder);
+  protected readonly eventService = inject(EventoService);
+  protected readonly auth = inject(AuthService);
 
-  dialogFormVisible = signal<boolean> (false);
-  dialogDetailsVisible = signal<boolean> (false);
-  eventSelected = signal<Evento | null> (null)
-  editMode = signal<boolean>(false);
-  filterText = signal<string>('');
-  idEventoEdit = signal<number | null>(null);
+  protected readonly formVisivel = signal(false);
+  protected readonly eventoEmEdicao = signal<Evento | null>(null);
 
-  formEvento : FormGroup = this.fb.group({
-    titulo: ['', [Validators.required, Validators.minLength(3)]],
-    local: ['', [Validators.required, Validators.minLength(3)]],
-    data: ['', Validators.required],
-    preco: [0, [Validators.required, Validators.min(0)]],
-    capacidade: [10, [Validators.required, Validators.min(1)]],
-    ativo: [true]
-  })
+  protected readonly detalhesVisivel = signal(false);
+  protected readonly eventoSelecionado = signal<Evento | null>(null);
 
   ngOnInit() {
     this.eventService.carregar();
@@ -49,66 +32,46 @@ export class Eventos implements OnInit, OnDestroy {
     this.eventService.limpar();
   }
 
-  sair() {
+  protected sair() {
     this.auth.logout();
   }
 
-  formOpen() {
-    this.editMode.set(false);
-    this.idEventoEdit.set(null);
-    this.formEvento.reset({
-      titulo: '',
-      local: '',
-      data: '',
-      preco: 0,
-      capacidade: 10,
-      ativo: true
-    });
-    this.dialogFormVisible.set(true);
+  protected novo() {
+    this.eventoEmEdicao.set(null);
+    this.formVisivel.set(true);
   }
 
-  formEventEditOpen (evento: Evento){
-    this.editMode.set(true);
-    this.idEventoEdit.set(evento.id);
-    this.formEvento.patchValue({
-      titulo: evento.titulo,
-      local: evento.local,
-      data: new Date(evento.data),
-      preco: evento.preco,
-      capacidade: evento.capacidade,
-      ativo: evento.ativo
-    });
-    this.dialogFormVisible.set(true)
+  protected editar(evento: Evento) {
+    this.eventoEmEdicao.set(evento);
+    this.formVisivel.set(true);
   }
 
-  formEventSave(){
-    if (this.formEvento.invalid) return;
-
-    const dados: EventoDados = this.formEvento.value;
-    const id = this.idEventoEdit();
-
-    const requisicao = this.editMode() && id !== null
-      ? this.eventService.atualizar(id, dados)
+  protected salvar(dados: EventoDados) {
+    const emEdicao = this.eventoEmEdicao();
+    const requisicao = emEdicao
+      ? this.eventService.atualizar(emEdicao.id, dados)
       : this.eventService.adicionar(dados);
 
     requisicao.subscribe({
-      next: () => this.dialogFormVisible.set(false),
+      next: () => this.formVisivel.set(false),
       error: () => alert('Não foi possível salvar o evento.'),
     });
   }
 
-  formEventDetailsOpen(id: number) {
-    this.eventService.buscarPorId(id).subscribe({
-      next: (evento) => {
-        this.eventSelected.set(evento);
-        this.dialogDetailsVisible.set(true);
+  protected detalhar(evento: Evento) {
+    this.eventService.buscarPorId(evento.id).subscribe({
+      next: (atualizado) => {
+        this.eventoSelecionado.set(atualizado);
+        this.detalhesVisivel.set(true);
       },
       error: () => alert('Não foi possível carregar o evento.'),
     });
   }
 
-  formEventDelete(id: number) {
-    this.eventService.remover(id).subscribe({
+  protected remover(evento: Evento) {
+    if (!confirm(`Remover o evento "${evento.titulo}"?`)) return;
+
+    this.eventService.remover(evento.id).subscribe({
       error: () => alert('Não foi possível remover o evento.'),
     });
   }
